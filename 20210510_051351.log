@@ -1,0 +1,211 @@
+2021-05-10 05:13:51,476 - mmedit - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.8.8 (default, Apr 13 2021, 19:58:26) [GCC 7.3.0]
+CUDA available: True
+GPU 0,1,2,3,4,5,6,7: Tesla K80
+CUDA_HOME: /usr/local/cuda
+NVCC: Build cuda_11.2.r11.2/compiler.29558016_0
+GCC: gcc (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609
+PyTorch: 1.8.1
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) oneAPI Math Kernel Library Version 2021.2-Product Build 20210312 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.7.0 (Git Hash 7aed236906b1f7a05c0917e5257a1af05e9ff683)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 10.2
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 7.6.5
+  - Magma 2.5.2
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=10.2, CUDNN_VERSION=7.6.5, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.8.1, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.9.1
+OpenCV: 4.5.1
+MMCV: 1.3.3
+MMCV Compiler: GCC 5.4
+MMCV CUDA Compiler: 11.2
+MMEditing: 0.7.0+1fa9605
+------------------------------------------------------------
+
+2021-05-10 05:13:51,477 - mmedit - INFO - Distributed training: True
+2021-05-10 05:13:51,477 - mmedit - INFO - mmedit Version: 0.7.0
+2021-05-10 05:13:51,477 - mmedit - INFO - Config:
+/home/wangk/inpaint/mmediting/configs/inpainting/swinuper/swinuper_256x256_8x12_places.py
+norm_cfg = dict(type='SyncBN', requires_grad=True)
+model = dict(
+    type='SwinInpaintor',
+    disc_input_with_mask=True,
+    encdec=dict(
+        type='SwinuperEncoderDecoder',
+        pretrained=None,
+        backbone=dict(
+            type='SwinTransformer',
+            embed_dim=96,
+            depths=[2, 2, 6, 2],
+            num_heads=[3, 6, 12, 24],
+            window_size=7,
+            mlp_ratio=4.,
+            qkv_bias=True,
+            qk_scale=None,
+            drop_rate=0.,
+            attn_drop_rate=0.,
+            drop_path_rate=0.3,
+            ape=False,
+            patch_norm=True,
+            out_indices=(0, 1, 2, 3),
+            use_checkpoint=False,
+            # pretrained='/home/wangk/inpaint/mmediting/models/swin_tiny_patch4_window7_224.pth'
+        ),
+        decode_head=dict(
+            type='UPerHead',
+            in_channels=[96, 192, 384, 768],
+            in_index=[0, 1, 2, 3],
+            pool_scales=(1, 2, 3, 6),
+            channels=192,
+            dropout_ratio=0.1,
+            num_classes=3,
+            norm_cfg=norm_cfg,
+            align_corners=False,
+            loss_decode=dict(),
+        ),
+    ),
+    disc=dict(
+        type='MultiLayerDiscriminator',
+        in_channels=4,
+        max_channels=192,
+        fc_in_channels=None,
+        num_convs=6,
+        norm_cfg=None,
+        act_cfg=dict(type='LeakyReLU', negative_slope=0.2),
+        out_act_cfg=dict(type='LeakyReLU', negative_slope=0.2),
+        with_spectral_norm=True,
+    ),
+    loss_gan=dict(
+        type='GANLoss',
+        gan_type='hinge',
+        loss_weight=0.1,
+    ),
+    loss_l1_hole=dict(
+        type='L1Loss',
+        loss_weight=1.0,
+    ),
+    loss_l1_valid=dict(
+        type='L1Loss',
+        loss_weight=1.0,
+    ),
+    pretrained=None)
+
+train_cfg = dict(disc_step=1)
+test_cfg = dict(metrics=['l1', 'psnr', 'ssim'])
+
+dataset_type = 'ImgInpaintingDataset'
+input_shape = (256, 256)
+
+train_pipeline = [
+    dict(type='LoadImageFromFile', key='gt_img'),
+    dict(
+        type='LoadMask',
+        mask_mode='irregular',
+        mask_config=dict(
+            num_vertexes=(4, 10),
+            max_angle=6.0,
+            length_range=(20, 128),
+            brush_width=(10, 45),
+            area_ratio_range=(0.15, 0.65),
+            img_shape=input_shape)),
+    dict(
+        type='Crop',
+        keys=['gt_img'],
+        crop_size=(384, 384),
+        random_crop=True,
+    ),
+    dict(
+        type='Resize',
+        keys=['gt_img'],
+        scale=input_shape,
+        keep_ratio=False,
+    ),
+    dict(
+        type='Normalize',
+        keys=['gt_img'],
+        mean=[127.5] * 3,
+        std=[127.5] * 3,
+        to_rgb=False),
+    dict(type='GetMaskedImage'),
+    dict(
+        type='Collect',
+        keys=['gt_img', 'masked_img', 'mask'],
+        meta_keys=['gt_img_path']),
+    dict(type='ImageToTensor', keys=['gt_img', 'masked_img', 'mask'])
+]
+
+test_pipeline = train_pipeline
+
+data_root = 'data/places365_standard'
+
+data = dict(
+    workers_per_gpu=4,
+    train_dataloader=dict(samples_per_gpu=2, drop_last=True),
+    val_dataloader=dict(samples_per_gpu=1),
+    test_dataloader=dict(samples_per_gpu=1),
+    train=dict(
+        type=dataset_type,
+        ann_file=f'{data_root}/train.txt',
+        data_prefix=data_root,
+        pipeline=train_pipeline,
+        test_mode=False),
+    val=dict(
+        type=dataset_type,
+        ann_file=f'{data_root}/val.txt',
+        data_prefix=data_root,
+        pipeline=test_pipeline,
+        test_mode=True),
+    test=dict(
+        type=dataset_type,
+        ann_file=(f'{data_root}/val.txt'),
+        data_prefix=data_root,
+        pipeline=test_pipeline,
+        test_mode=True))
+
+optimizers = dict(
+    generator=dict(type='Adam', lr=0.0001), disc=dict(type='Adam', lr=0.0001))
+
+lr_config = dict(policy='Fixed', by_epoch=False)
+
+checkpoint_config = dict(by_epoch=False, interval=5000)
+log_config = dict(
+    interval=100,
+    hooks=[
+        dict(type='TextLoggerHook', by_epoch=False),
+        dict(type='TensorboardLoggerHook'),
+        # dict(type='PaviLoggerHook', init_kwargs=dict(project='mmedit'))
+    ])
+
+visual_config = dict(
+    type='VisualizationHook',
+    output_dir='visual',
+    interval=1000,
+    res_name_list=[
+        'gt_img', 'masked_img', 'fake_res', 'fake_img'
+    ],
+)
+
+evaluation = dict(interval=50000)
+
+total_iters = 300000
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+work_dir = './work_dirs/train_swinuper'
+load_from = None
+resume_from = work_dir+'/latest.pth'
+resume_from = None
+workflow = [('train', 10000)]
+exp_name = 'swinuper'
+find_unused_parameters = False
+
+2021-05-10 05:14:20,318 - mmedit - INFO - Start running, host: wangk@kehan-gpu, work_dir: /home/wangk/inpaint/mmediting/work_dirs/train_swinuper
+2021-05-10 05:14:20,318 - mmedit - INFO - workflow: [('train', 10000)], max: 300000 iters
+2021-05-10 05:15:36,289 - mmedit - INFO - Iter [100/300000]	lr_generator: 1.000e-04 lr_disc: 1.000e-04, eta: 1 day, 11:23:39, time: 0.425, data_time: 0.003, memory: 1307, fake_loss: 1.1462, loss: 0.5115, real_loss: 0.7328, loss_g_fake: -0.0139, loss_l1_hole: 0.3146, loss_l1_valid: 0.2108
